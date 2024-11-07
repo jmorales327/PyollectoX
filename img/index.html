@@ -1,0 +1,214 @@
+<?php
+require_once 'db_connection.php';
+
+$resultados = null;
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $campo = $_POST['campo'];
+    $valor = $_POST['valor'];
+    $resultados = buscar($conn, $campo, $valor);
+} else {
+    $resultados = obtenerTodosLosRegistros($conn);
+}
+?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla de Personal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        .navbar {
+            background-color: #0073e6;
+            padding: 15px;
+            color: white;
+            font-size: 16px;
+            display: flex;
+        }
+        .navbar-item {
+            margin-right: 20px;
+            cursor: pointer;
+            position: relative;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #0073e6;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            top: 100%;
+            left: 0;
+        }
+        .dropdown-content a {
+            color: white;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+        .dropdown-content a:hover {
+            background-color: #005bb8;
+        }
+        .show {
+            display: block;
+        }
+        .container {
+            width: 90%;
+            margin: 20px auto;
+        }
+        .header {
+            font-size: 24px;
+            color: #0073e6;
+            margin-bottom: 10px;
+        }
+        .search-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .search-bar select, .search-bar input, .search-bar button {
+            padding: 10px;
+            font-size: 16px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .search-bar button {
+            background-color: #009fe3;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .table-container {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f1f1f1;
+            color: #333;
+        }
+        .row-data {
+            background-color: #ffffff;
+        }
+        .row-data:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-item">INICIO</div>
+        <div class="navbar-item" onclick="toggleDropdown('busquedaDropdown')">
+            BÚSQUEDA ▼
+            <div id="busquedaDropdown" class="dropdown-content">
+                <a href="#">Personal</a>
+                <a href="#">Equipos</a>
+                <a href="#">Chip</a>
+            </div>
+        </div>
+        <div class="navbar-item" onclick="toggleDropdown('formularioDropdown')">
+            FORMULARIO ▼
+            <div id="formularioDropdown" class="dropdown-content">
+                <a href="#">Préstamos</a>
+                <a href="#">Devoluciones</a>
+            </div>
+        </div>
+        <div class="navbar-item">REGISTROS</div>
+        <div class="navbar-item">CONFIGURACIÓN</div>
+    </div>
+
+    <div class="container">
+        <div class="header">Personal</div>
+        
+        <form class="search-bar" method="POST">
+            <select name="campo">
+                <option value="placa">Placa</option>
+                <option value="rango">Rango</option>
+                <option value="nombre">Nombre</option>
+                <option value="apellido">Apellido</option>
+            </select>
+            <input type="text" name="valor" placeholder="Buscar...">
+            <button type="submit">Buscar</button>
+        </form>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Placa</th>
+                        <th>Rango</th>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    if ($resultados && $resultados->num_rows > 0) {
+                        while($row = $resultados->fetch_assoc()) {
+                            echo "<tr class='row-data'>";
+                            echo "<td>" . htmlspecialchars($row["id"]) . "</td>";
+                            echo "<td>" . htmlspecialchars($row["placa"]) . "</td>";
+                            echo "<td>" . htmlspecialchars($row["rango"]) . "</td>";
+                            echo "<td>" . htmlspecialchars($row["nombre"]) . "</td>";
+                            echo "<td>" . htmlspecialchars($row["apellido"]) . "</td>";
+                            echo "</tr>";
+                        }
+                    } else {
+                        echo "<tr><td colspan='5'>No se encontraron resultados</td></tr>";
+                    }
+                    ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function toggleDropdown(id) {
+            var dropdown = document.getElementById(id);
+            dropdown.classList.toggle("show");
+            
+            // Cerrar otros dropdowns
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            for (var i = 0; i < dropdowns.length; i++) {
+                var openDropdown = dropdowns[i];
+                if (openDropdown.id !== id && openDropdown.classList.contains('show')) {
+                    openDropdown.classList.remove('show');
+                }
+            }
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.matches('.navbar-item')) {
+                var dropdowns = document.getElementsByClassName("dropdown-content");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
+<?php
+$conn->close();
+?>

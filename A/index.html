@@ -1,0 +1,247 @@
+<html><head><base href="test"><title>test</title><style>body{font-family:'Arial',sans-serif;background-color:#0a0a0a;margin:0;padding:0;color:#fff}.top-buttons{position:fixed;top:0;left:50%;transform:translateX(-50%);width:90%;padding:10px 0;background-color:rgba(20,20,20,.9);display:flex;justify-content:flex-end;gap:10px;z-index:1000;box-shadow:0 2px 5px rgba(0,0,0,.2)}.nav-button{padding:8px 20px;background-color:#ff0033;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:bold;transition:background-color .3s ease}.nav-button:hover{background-color:#ff3366}.container{width:90%;margin:60px auto;background-color:rgba(20,20,20,.8);padding:20px;border-radius:10px;box-shadow:0 0 20px rgba(255,0,51,.2)}.header{font-size:24px;color:#f03;margin-bottom:20px;text-transform:uppercase;text-shadow:0 0 10px rgba(255,0,51,.5)}.search-bar{display:flex;align-items:center;margin-bottom:20px;flex-wrap:wrap}.search-bar select,.search-bar input,.search-bar button{padding:10px;font-size:16px;margin:5px;border:1px solid #f03;border-radius:5px;background-color:rgba(20,20,20,.8);color:#fff}.search-bar button{background-color:#f03;color:#fff;cursor:pointer;transition:background-color .3s ease}.search-bar button:hover{background-color:#f36}.table-container{overflow-x:auto}table{width:100%;border-collapse:collapse}th,td{padding:12px;text-align:left;border:1px solid #333}th{background-color:#1a1a1a;color:#f03}.row-data:nth-child(even){background-color:#0f0f0f}.action-button{padding:5px 10px;margin:0 2px;color:#fff;border:none;border-radius:3px;cursor:pointer;transition:background-color .3s ease}.edit-button{background-color:#009fe3}.delete-button{background-color:#e74c3c}.action-button:hover{opacity:.8}.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);justify-content:center;align-items:center}.modal-content{background:#1a1a1a;padding:20px;border-radius:8px;width:400px;border:1px solid #f03;box-shadow:0 0 20px rgba(255,0,51,.3)}.modal-content h3{margin-top:0;color:#f03}.modal-content label{display:block;margin:10px 0 5px;font-weight:700;color:#fff}.modal-content input{width:100%;padding:8px;font-size:16px;margin-bottom:10px;border:1px solid #333;border-radius:4px;background-color:#0f0f0f;color:#fff}.modal-buttons{display:flex;justify-content:space-between}.modal-buttons button{padding:8px 15px;font-size:16px;cursor:pointer;border-radius:5px;border:none;transition:background-color .3s ease}.save-button{background-color:#009fe3;color:#fff}.close-button{background-color:#e74c3c;color:#fff}.modal-buttons button:hover{opacity:.8}#contador{margin-bottom:20px;color:#f03;font-weight:700}</style></head><body>
+    <div class="top-buttons">
+        <button onclick="window.location.href='http://10.234.56.80/B/inicio.php'" class="nav-button">Inicio</button>
+        <button onclick="window.location.href='http://10.234.56.80/C/index.php'" class="nav-button">Cerrar</button>
+    </div>
+    <div class="container">
+        <div class="header">Gestión de Personal</div>
+        
+        <div class="search-bar">
+            <select id="campo">
+                <option value="Placa">Placa</option>
+                <option value="Nombre">Nombre</option>  
+                <option value="Apellido">Apellido</option>
+                <option value="Reasignar">Reasignar</option>
+            </select>
+            <input type="text" id="valor" placeholder="Buscar...">
+            <button onclick="buscar()">Buscar</button>
+            <button onclick="abrirAgregarModal()">Agregar Personal</button>
+        </div>
+
+        <div id="contador"></div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Placa</th>
+                        <th>Rango</th>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Teléfono</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-resultados">
+                    <!-- Resultados de búsqueda se mostrarán aquí -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal para edición -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h3>Editar Registro</h3>
+            <label>ID:</label>
+            <input type="text" id="edit-id" readonly>
+            
+            <label>Placa:</label>
+            <input type="text" id="edit-placa">
+            
+            <label>Rango:</label>
+            <input type="text" id="edit-rango">
+            
+            <label>Nombre:</label>
+            <input type="text" id="edit-nombre">
+            
+            <label>Apellido:</label>
+            <input type="text" id="edit-apellido">
+            
+            <label>Teléfono:</label>
+            <input type="text" id="edit-telefono">
+            
+            <div class="modal-buttons">
+                <button onclick="guardarEdicion()" class="save-button">Guardar</button>
+                <button onclick="cerrarModal()" class="close-button">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para agregar nuevo empleado -->
+    <div id="agregar-modal" class="modal">
+        <div class="modal-content" style="width: 500px;">
+            <h3>Agregar Nuevo Personal</h3>
+            <div style="display: flex; gap: 20px;">
+                <div style="flex: 1;">
+                    <label>ID (automático):</label>
+                    <input type="text" id="agregar-id" readonly>
+                </div>
+                <div style="flex: 1;">
+                    <label>Placa:</label>
+                    <input type="text" id="agregar-placa">
+                </div>
+            </div>
+            <div style="display: flex; gap: 20px;">
+                <div style="flex: 1;">
+                    <label>Rango:</label>
+                    <input type="text" id="agregar-rango">
+                </div>
+                <div style="flex: 1;">
+                    <label>Nombre:</label>
+                    <input type="text" id="agregar-nombre">
+                </div>
+            </div>
+            <label>Apellido:</label>
+            <input type="text" id="agregar-apellido">
+            <label>Teléfono:</label>
+            <input type="text" id="agregar-telefono">
+            <div class="modal-buttons">
+                <button onclick="guardarNuevoPersonal()" class="save-button">Guardar</button>
+                <button onclick="cerrarAgregarModal()" class="close-button">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function buscar() {
+            const campo = document.getElementById('campo').value;
+            const valor = document.getElementById('valor').value;
+            const url = campo === 'Reasignar' ? 'buscar_reasignar.php' : `buscar_personal.php?campo=${campo}&valor=${valor}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const tablaResultados = document.getElementById('tabla-resultados');
+                    tablaResultados.innerHTML = ''; 
+
+                    data.forEach(item => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${item.Id}</td>
+                            <td>${item.Placa}</td>
+                            <td>${item.Rango}</td>
+                            <td>${item.Nombre}</td>
+                            <td>${item.Apellido}</td>
+                            <td>${item.Telefono}</td>
+                            <td>
+                                <button class="action-button edit-button" onclick="editar(${item.Id}, '${item.Placa}', '${item.Rango}', '${item.Nombre}', '${item.Apellido}', '${item.Telefono}')">Editar</button>
+                                <button class="action-button delete-button" onclick="eliminar(${item.Id})">Eliminar</button>
+                            </td>
+                        `;
+                        tablaResultados.appendChild(row);
+                    });
+
+                    actualizarContador();
+                })
+                .catch(error => console.error('Error en la búsqueda:', error));
+        }
+
+        function actualizarContador() {
+            fetch('contador_empleados.php')
+                .then(response => response.json())
+                .then(data => {
+                    const contador = document.getElementById('contador');
+                    contador.innerHTML = `Total de empleados: ${data.totalPersonal} | Espacios vacíos para reasignar: ${data.totalReasignar}`;
+                })
+                .catch(error => console.error('Error en el contador:', error));
+        }
+
+        function abrirAgregarModal() {
+            fetch('obtener_id_disponible.php')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('agregar-id').value = data.id;
+                    document.getElementById('agregar-modal').style.display = 'flex';
+                })
+                .catch(error => console.error('Error obteniendo ID:', error));
+        }
+
+        function guardarNuevoPersonal() {
+            const id = document.getElementById('agregar-id').value;
+            const placa = document.getElementById('agregar-placa').value;
+            const rango = document.getElementById('agregar-rango').value;
+            const nombre = document.getElementById('agregar-nombre').value;
+            const apellido = document.getElementById('agregar-apellido').value;
+            const telefono = document.getElementById('agregar-telefono').value;
+
+            fetch(`agregar_personal.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ placa, rango, nombre, apellido, telefono })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    console.error('Error al agregar personal:', data.error);
+                    return;
+                }
+
+                cerrarAgregarModal();
+                buscar();
+            })
+            .catch(error => console.error('Error al agregar personal:', error));
+        }
+
+        function cerrarAgregarModal() {
+            document.getElementById('agregar-modal').style.display = 'none';
+        }
+
+        function editar(id, placa, rango, nombre, apellido, telefono) {
+            document.getElementById('edit-id').value = id;
+            document.getElementById('edit-placa').value = placa;
+            document.getElementById('edit-rango').value = rango;
+            document.getElementById('edit-nombre').value = nombre;
+            document.getElementById('edit-apellido').value = apellido;
+            document.getElementById('edit-telefono').value = telefono;
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        function cerrarModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        function guardarEdicion() {
+            const id = document.getElementById('edit-id').value;
+            const placa = document.getElementById('edit-placa').value;
+            const rango = document.getElementById('edit-rango').value;
+            const nombre = document.getElementById('edit-nombre').value;
+            const apellido = document.getElementById('edit-apellido').value;
+            const telefono = document.getElementById('edit-telefono').value;
+
+            fetch(`editar_personal.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, placa, rango, nombre, apellido, telefono })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    cerrarModal();
+                    buscar();
+                } else {
+                    console.error('Error en la edición:', data.error);
+                }
+            })
+            .catch(error => console.error('Error al guardar la edición:', error));
+        }
+
+        function eliminar(id) {
+            fetch(`marcar_reasignar.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    buscar();
+                } else {
+                    console.error('Error al marcar como reasignar:', data.error);
+                }
+            })
+            .catch(error => console.error('Error al marcar como reasignar:', error));
+        }
+    </script>
+</body></html>
