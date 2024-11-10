@@ -180,21 +180,21 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Añadir efecto de ripple a los elementos del menú
             const menuItems = document.querySelectorAll('.navbar-item');
-            
+
             menuItems.forEach(item => {
                 item.addEventListener('click', function(e) {
                     const ripple = document.createElement('div');
                     ripple.classList.add('ripple');
-                    
+
                     const rect = item.getBoundingClientRect();
                     const x = e.clientX - rect.left;
                     const y = e.clientY - rect.top;
-                    
+
                     ripple.style.left = x + 'px';
                     ripple.style.top = y + 'px';
-                    
+
                     item.appendChild(ripple);
-                    
+
                     setTimeout(() => {
                         ripple.remove();
                     }, 600);
@@ -227,7 +227,7 @@
 
             // Agregar evento para el botón de "Salir"
             const exitButton = document.querySelector('.exit-button');
-            
+
             exitButton.addEventListener('click', function() {
                 window.location.href = 'http://10.234.56.80/C/index.php';
             });
@@ -248,7 +248,7 @@
         </div>
         <div class="navbar-item">Gestión de Préstamos
             <div class="dropdown-content">
-                <a href="https://example.com/loans">Registro de Préstamos</a>
+                <a href="http://10.234.56.80/B/prestamo.html">Registro de Préstamos</a>
                 <a href="https://example.com/returns">Registro de Devoluciones</a>
                 <a href="https://example.com/history">Historial de Préstamos</a>
             </div>

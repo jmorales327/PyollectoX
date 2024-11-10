@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Préstamos</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #141414;
+            color: #E5E5E5;
+            margin: 0;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px;
+            background: linear-gradient(135deg, #000000, #E50914);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+        .loan-number {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .date {
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 5px;
+        }
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 3fr;
+            gap: 20px;
+        }
+        .search-column, .invoice-section {
+            background: #181818;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group input, .form-group select, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #404040;
+            border-radius: 5px;
+            background-color: #2B2B2B;
+            color: #E5E5E5;
+        }
+        button {
+            background-color: #E50914;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #B81D24;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        table th, table td {
+            padding: 10px;
+            border: 1px solid #404040;
+            text-align: left;
+        }
+        table th {
+            background-color: #E50914;
+            color: white;
+        }
+        table tr:nth-child(even) {
+            background-color: #2B2B2B;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentDate = new Date().toLocaleDateString('es-ES', {
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+            });
+            document.getElementById('currentDate').textContent = currentDate;
+            document.getElementById('invoiceDate').textContent = currentDate;
+        });
+
+        function buscarSolicitantePorPlaca() {
+            const placa = document.getElementById('placaInput').value;
+
+            if (!placa) {
+                alert('Por favor, ingrese una placa.');
+                return;
+            }
+
+            fetch(`buscar_solicitante.php?placa=${placa}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data) {
+                        document.getElementById('solicitanteNombre').textContent = `${data.nombre} ${data.apellido}`;
+                        document.getElementById('solicitanteRango').textContent = data.rango;
+                        document.getElementById('solicitantePlaca').textContent = `Placa: ${placa}`;
+                    } else {
+                        alert('No se encontró ningún solicitante con esa placa.');
+                        document.getElementById('solicitanteNombre').textContent = 'N/A';
+                        document.getElementById('solicitanteRango').textContent = 'N/A';
+                        document.getElementById('solicitantePlaca').textContent = 'Placa: N/A';
+                    }
+                })
+                .catch(error => console.error('Error al buscar el solicitante:', error));
+        }
+
+        function agregarEquipo() {
+            const searchInput = document.getElementById('searchInput').value;
+            if (!searchInput) {
+                alert('Ingrese un número de serie o IMEI');
+                return;
+            }
+
+            fetch('registrar_prestamo.php')
+                .then(response => response.json())
+                .then(data => {
+                    const equipoEncontrado = data.find(item => item.serie === searchInput || item.imei === searchInput);
+                    if (equipoEncontrado) {
+                        const tableBody = document.getElementById('invoiceTableBody');
+                        const newRow = document.createElement('tr');
+                        newRow.innerHTML = `
+                            <td>${tableBody.children.length + 1}</td>
+                            <td>${equipoEncontrado.serie}</td>
+                            <td>${equipoEncontrado.marca}</td>
+                            <td>${equipoEncontrado.modelo}</td>
+                            <td>${equipoEncontrado.descripcion}</td>
+                            <td>${equipoEncontrado.estado}</td>
+                            <td>1</td>
+                        `;
+                        tableBody.appendChild(newRow);
+
+                        // Actualizar total de equipos
+                        document.getElementById('totalEquipos').textContent = tableBody.children.length;
+                    } else {
+                        alert('Equipo no encontrado');
+                    }
+                })
+                .catch(error => console.error('Error al obtener datos:', error));
+        }
+    </script>
+</head>
+<body>
+
+<div class="header">
+    <div class="loan-number">Préstamo #: <span id="loanNumber">2024001</span></div>
+    <div class="date" id="currentDate"></div>
+</div>
+
+<div class="main-container">
+    <div class="search-column">
+        <h3>Tipo de búsqueda</h3>
+        <div class="form-group">
+            <label for="searchType">Seleccione tipo:</label>
+            <select id="searchType">
+                <option value="serie">Nº de serie</option>
+                <option value="imei">Nº de IMEI</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="searchInput">Ingrese número:</label>
+            <input type="text" id="searchInput">
+        </div>
+        <button onclick="agregarEquipo()">AGREGAR EQUIPO</button>
+
+        <h3>Búsqueda de Solicitante</h3>
+        <div class="form-group">
+            <label for="placaInput">Número de Placa:</label>
+            <input type="text" id="placaInput" placeholder="Ingrese la placa">
+            <button type="button" onclick="buscarSolicitantePorPlaca()">Buscar Solicitante</button>
+        </div>
+    </div>
+
+    <div class="invoice-section">
+        <h2>Factura de Préstamo</h2>
+        <p>Fecha: <span id="invoiceDate"></span></p>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+            <div>
+                <strong>Solicitante:</strong><br>
+                <span id="solicitanteNombre">N/A</span><br>
+                <span id="solicitanteRango">N/A</span><br>
+                <span id="solicitantePlaca">Placa: N/A</span>
+            </div>
+            <div>
+                <strong>Despachador:</strong><br>
+                Mario Ruiz
+            </div>
+            <div>
+                <strong>Estado del Chip:</strong><br>
+                No chip
+            </div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Serie</th>
+                    <th>Marca</th>
+                    <th>Modelo</th>
+                    <th>Descripción</th>
+                    <th>Estado</th>
+                    <th>Cantidad</th>
+                </tr>
+            </thead>
+            <tbody id="invoiceTableBody">
+                <!-- Datos llenados dinámicamente -->
+            </tbody>
+        </table>
+        <p style="margin-top: 10px;">Total de equipos: <span id="totalEquipos">0</span></p>
+    </div>
+</div>
+
+</body>
+</html>
