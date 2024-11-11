@@ -183,11 +183,7 @@
 
 <div class="nav-buttons">
     <button class="nav-btn" onclick="window.location.href='http://10.234.56.80/B/inicio.php'">Inicio</button>
-    <button class="nav-btn close" onclick="window.location.href='http://10.234.56.80
-    
-    
-    
-    /C/index.php'">Cerrar</button>
+    <button class="nav-btn close" onclick="window.location.href='http://10.234.56.80/C/index.php'">Cerrar</button>
 </div>
 
 <div class="container">

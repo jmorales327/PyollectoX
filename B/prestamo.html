@@ -116,6 +116,27 @@
                 .catch(error => console.error('Error al buscar el solicitante:', error));
         }
 
+        function buscarDespachador() {
+            const nombreDespachador = document.getElementById('despachadorInput').value;
+
+            if (!nombreDespachador) {
+                alert('Por favor, ingrese el nombre o ID del despachador.');
+                return;
+            }
+
+            fetch(`buscar_despachador.php?nombre=${nombreDespachador}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data) {
+                        document.getElementById('despachadorNombre').textContent = data.nombre;
+                    } else {
+                        alert('No se encontró ningún despachador con ese nombre o ID.');
+                        document.getElementById('despachadorNombre').textContent = 'N/A';
+                    }
+                })
+                .catch(error => console.error('Error al buscar el despachador:', error));
+        }
+
         function agregarEquipo() {
             const searchInput = document.getElementById('searchInput').value;
             if (!searchInput) {
@@ -180,6 +201,13 @@
             <input type="text" id="placaInput" placeholder="Ingrese la placa">
             <button type="button" onclick="buscarSolicitantePorPlaca()">Buscar Solicitante</button>
         </div>
+
+        <h3>Búsqueda de Despachador</h3>
+        <div class="form-group">
+            <label for="despachadorInput">Nombre o ID del Despachador:</label>
+            <input type="text" id="despachadorInput" placeholder="Ingrese el nombre o ID">
+            <button type="button" onclick="buscarDespachador()">Buscar Despachador</button>
+        </div>
     </div>
 
     <div class="invoice-section">
@@ -194,7 +222,7 @@
             </div>
             <div>
                 <strong>Despachador:</strong><br>
-                Mario Ruiz
+                <span id="despachadorNombre">N/A</span>
             </div>
             <div>
                 <strong>Estado del Chip:</strong><br>
